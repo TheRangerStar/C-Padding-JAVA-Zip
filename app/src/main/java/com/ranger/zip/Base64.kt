@@ -14,30 +14,27 @@ import java.util.zip.ZipOutputStream
  */
 object Base64 {
 
-    fun encrypt(value: String): String? {
-        try {
-            val paddingValue = ZipCryptor.Encrypt(value)
-            var byteArray: ByteArray? = null
-            val byteArrayOutputStream = ByteArrayOutputStream()
-            val zipOutputStream = ZipOutputStream(byteArrayOutputStream)
-            val zipEntry = ZipEntry("zip")
-            zipEntry.size = paddingValue?.size?.toLong() ?: 1024
-            zipOutputStream.putNextEntry(zipEntry)
-            zipOutputStream.write(paddingValue)
-            zipOutputStream.closeEntry()
-            zipOutputStream.close()
-            byteArray = byteArrayOutputStream.toByteArray()
-            byteArrayOutputStream.close()
-            val resultData = Base64.encodeToString(byteArray, Base64.DEFAULT)
-            return resultData
-        } catch (e: Exception) {
-            Log.e("encrypt: ", e.toString())
-            return null
-        }
+    fun encrypt(value: String): String? = try {
+        val paddingValue = ZipCryptor.Encrypt(value)
+        var byteArray: ByteArray? = null
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        val zipOutputStream = ZipOutputStream(byteArrayOutputStream)
+        val zipEntry = ZipEntry("zip")
+        zipEntry.size = paddingValue?.size?.toLong() ?: 1024
+        zipOutputStream.putNextEntry(zipEntry)
+        zipOutputStream.write(paddingValue)
+        zipOutputStream.closeEntry()
+        zipOutputStream.close()
+        byteArray = byteArrayOutputStream.toByteArray()
+        byteArrayOutputStream.close()
+        Base64.encodeToString(byteArray, Base64.DEFAULT)
+    } catch (e: Exception) {
+        Log.e("encrypt: ", e.toString())
+        null
     }
 
 
-    fun decrypt(value: String): String? {
+    fun decrypt(value: String): String? =
         try {
             val data = Base64.decode(value, Base64.DEFAULT)
             var byteArray: ByteArray? = null
@@ -56,35 +53,10 @@ object Base64 {
             }
             zipInputStream.close()
             byteArrayOutputStream.close()
-            return byteArray?.let { ZipCryptor.Decrypt(it) }
+            byteArray?.let { ZipCryptor.Decrypt(it) }
         } catch (e: Exception) {
             Log.e("decrypt: ", e.toString())
-            return null
+            null
         }
 
-    }
-
-    fun unZip(data: ByteArray?): ByteArray? {
-        var b: ByteArray? = null
-        try {
-            val bis = ByteArrayInputStream(data)
-            val zip = ZipInputStream(bis)
-            while (zip.getNextEntry() != null) {
-                val buf = ByteArray(1024)
-                var num = -1
-                val baos = ByteArrayOutputStream()
-                while (zip.read(buf, 0, buf.size).also { num = it } != -1) {
-                    baos.write(buf, 0, num)
-                }
-                b = baos.toByteArray()
-                baos.flush()
-                baos.close()
-            }
-            zip.close()
-            bis.close()
-        } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
-        }
-        return b
-    }
 }

@@ -15,7 +15,6 @@ char *ConvertJByteaArrayToChars(JNIEnv *env, jbyteArray bytearray) {
     memcpy(chars, bytes, chars_len);
     chars[chars_len] = 0;
     env->ReleaseByteArrayElements(bytearray, bytes, 0);
-    //
     return chars;
 }
 
